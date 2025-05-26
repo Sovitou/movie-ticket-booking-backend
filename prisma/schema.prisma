@@ -6,10 +6,29 @@
 
 generator client {
   provider = "prisma-client-js"
-  output   = "../generated/prisma"
 }
 
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+}
+
+model User{
+  id Int @id @default(autoincrement())
+  name String @db.VarChar(200)
+  password String  @db.VarChar(200)
+  email String  @db.VarChar(200)
+  phoneNumber String? @map("phone_number")
+  createdAt DateTime  @default(now()) @db.Timestamp() @map("created_at")
+  updatedAt DateTime? @db.Timestamp() @map("updated_at")
+  deletedAt DateTime? @db.Timestamp() @map("deleted_at")
+}
+
+model Movie{
+  id Int @id @default(autoincrement())
+  title String 
+  description String 
+  duration Float
+  genre String 
+  rating String 
 }
