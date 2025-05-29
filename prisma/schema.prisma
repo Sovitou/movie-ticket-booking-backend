@@ -63,7 +63,7 @@ model Users {
   status       UserStatus @default(active)
   last_login   DateTime?
   created_at   DateTime  @default(now())
-  updated_at   DateTime  @updatedAt
+  updated_at   DateTime?  @updatedAt
   deleted_at   DateTime?
   bookings     Bookings[]
   reviews      Reviews[]
