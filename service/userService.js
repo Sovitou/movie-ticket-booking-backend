@@ -1,9 +1,9 @@
 import jwt from "jsonwebtoken";
-const secretKey = 'yourSecretKey';
 import bcrypt from "bcrypt"
 import {PrismaClient} from "@prisma/client"
 const prisma = new PrismaClient()
 export const createUserAccount = async (email,password,name)=>{
+    const secretKey = process.env.SECRET_KEY;
     const isUserExist = await prisma.user.findFirst({
         where:{
             email:email
