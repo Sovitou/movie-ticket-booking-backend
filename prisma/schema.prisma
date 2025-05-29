@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -13,22 +7,272 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User{
-  id Int @id @default(autoincrement())
-  name String @db.VarChar(200)
-  password String  @db.VarChar(200)
-  email String  @db.VarChar(200)
-  phoneNumber String? @map("phone_number")
-  createdAt DateTime  @default(now()) @db.Timestamp() @map("created_at")
-  updatedAt DateTime? @db.Timestamp() @map("updated_at")
-  deletedAt DateTime? @db.Timestamp() @map("deleted_at")
+enum Role {
+  user
+  admin
 }
 
-model Movie{
-  id Int @id @default(autoincrement())
-  title String 
-  description String 
-  duration Float
-  genre String 
-  rating String 
+enum UserStatus {
+  active
+  inactive
+  banned
+}
+
+enum SeatType {
+  regular
+  VIP
+}
+
+enum BookingStatus {
+  pending
+  accepted
+  picked_up
+  cancelled
+}
+
+enum PaymentMethod {
+  cash_on_delivery
+  card
+  wallet
+}
+
+enum PaymentStatus {
+  pending
+  completed
+  failed
+}
+
+enum DiscountType {
+  percentage
+  fixed
+}
+
+enum CancellationStatus {
+  pending
+  approved
+  rejected
+}
+
+model Users {
+  id           Int      @id @default(autoincrement())
+  name         String
+  email        String   @unique
+  password_hash String
+  role         Role
+  phone_number String?
+  status       UserStatus @default(active)
+  last_login   DateTime?
+  created_at   DateTime  @default(now())
+  updated_at   DateTime  @updatedAt
+  deleted_at   DateTime?
+  bookings     Bookings[]
+  reviews      Reviews[]
+  activity_logs Activity_Logs[]
+  @@index([email])
+}
+
+model Movies {
+  id           Int      @id @default(autoincrement())
+  title        String
+  description  String?
+  duration     Int
+  genre        String
+  rating       String   @db.VarChar(10)
+  poster_url   String?
+  release_date DateTime @db.Date
+  director     String?
+  cast         String?
+  trailer_url  String?
+  language     String?
+  start_date   DateTime @db.Date
+  end_date     DateTime @db.Date
+  play_days    String
+  created_at   DateTime @default(now())
+  updated_at   DateTime @updatedAt
+  deleted_at   DateTime?
+  showtimes    Showtimes[]
+  reviews      Reviews[]
+}
+
+model Theaters {
+  id           Int      @id @default(autoincrement())
+  name         String
+  location     String
+  city         String
+  contact_info String?
+  total_seats  Int
+  created_at   DateTime @default(now())
+  updated_at   DateTime @updatedAt
+  deleted_at   DateTime?
+  screens      Screens[]
+  telegram_channels Telegram_Channels[]
+}
+
+model Screens {
+  id           Int      @id @default(autoincrement())
+  theater_id   Int
+  theater      Theaters @relation(fields: [theater_id], references: [id])
+  name         String   @db.VarChar(100)
+  total_seats  Int
+  created_at   DateTime @default(now())
+  updated_at   DateTime @updatedAt
+  deleted_at   DateTime?
+  seats        Seats[]
+  showtimes    Showtimes[]
+}
+
+model Seats {
+  id           Int      @id @default(autoincrement())
+  screen_id    Int
+  screen       Screens  @relation(fields: [screen_id], references: [id])
+  seat_number  String   @unique @db.VarChar(10)
+  seat_type    SeatType
+  is_available Boolean  @default(true)
+  price_modifier Decimal?  @db.Decimal(4, 2)
+  created_at   DateTime @default(now())
+  updated_at   DateTime @updatedAt
+  deleted_at   DateTime?
+  booked_seats Booked_Seats[]
+}
+
+model Showtimes {
+  id           Int      @id @default(autoincrement())
+  movie_id     Int
+  movie        Movies   @relation(fields: [movie_id], references: [id])
+  screen_id    Int
+  screen       Screens  @relation(fields: [screen_id], references: [id])
+  start_time   DateTime
+  end_time     DateTime
+  language     String
+  price        Decimal    @db.Decimal(10, 2)
+  is_active    Boolean  @default(true)
+  seats_available Int
+  created_at   DateTime @default(now())
+  updated_at   DateTime @updatedAt
+  deleted_at   DateTime?
+  bookings     Bookings[]
+  screen_formats Screen_Formats[]
+  @@unique([movie_id, screen_id, start_time])
+}
+
+model Bookings {
+  id              Int      @id @default(autoincrement())
+  user_id         Int?
+  user            Users?   @relation(fields: [user_id], references: [id])
+  showtime_id     Int
+  showtime        Showtimes @relation(fields: [showtime_id], references: [id])
+  promotion_id    Int?
+  promotion       Promotions? @relation(fields: [promotion_id], references: [id])
+  booking_time    DateTime @default(now())
+  total_amount    Decimal    @db.Decimal(10, 2)
+  number_of_tickets Int
+  status          BookingStatus
+  guest_email     String?
+  guest_phone     String?
+  created_at      DateTime @default(now())
+  updated_at      DateTime @updatedAt
+  deleted_at      DateTime?
+  booked_seats    Booked_Seats[]
+  payments        Payments[]
+  cancellations    Cancellations[]
+}
+
+model Booked_Seats {
+  id           Int      @id @default(autoincrement())
+  booking_id   Int
+  booking      Bookings @relation(fields: [booking_id], references: [id])
+  seat_id      Int
+  seat         Seats    @relation(fields: [seat_id], references: [id])
+  created_at   DateTime @default(now())
+  updated_at   DateTime @updatedAt
+  deleted_at   DateTime?
+}
+
+model Payments {
+  id           Int      @id @default(autoincrement())
+  booking_id   Int
+  booking      Bookings @relation(fields: [booking_id], references: [id])
+  amount       Decimal    @db.Decimal(10, 2)
+  currency     String   @db.VarChar(3)
+  payment_method PaymentMethod
+  payment_status PaymentStatus
+  transaction_id String?  @db.VarChar(100)
+  payment_time DateTime @default(now())
+  created_at   DateTime @default(now())
+  updated_at   DateTime @updatedAt
+  deleted_at   DateTime?
+}
+
+model Reviews {
+  id           Int      @id @default(autoincrement())
+  user_id      Int
+  user         Users    @relation(fields: [user_id], references: [id])
+  movie_id     Int
+  movie        Movies   @relation(fields: [movie_id], references: [id])
+  rating       Int
+  comment      String?
+  is_verified  Boolean  @default(false)
+  created_at   DateTime @default(now())
+  updated_at   DateTime @updatedAt
+  deleted_at   DateTime?
+  @@map("Reviews")
+}
+
+model Promotions {
+  id           Int      @id @default(autoincrement())
+  code         String   @unique @db.VarChar(50)
+  description  String?
+  discount_type DiscountType
+  discount_value Decimal  @db.Decimal(10, 2)
+  valid_from   DateTime
+  valid_until  DateTime
+  max_uses     Int?
+  created_at   DateTime @default(now())
+  updated_at   DateTime @updatedAt
+  deleted_at   DateTime?
+  bookings     Bookings[]
+}
+
+model Screen_Formats {
+  id           Int      @id @default(autoincrement())
+  showtime_id  Int
+  showtime     Showtimes @relation(fields: [showtime_id], references: [id])
+  format       String   @db.VarChar(50)
+  created_at   DateTime @default(now())
+  updated_at   DateTime @updatedAt
+  deleted_at   DateTime?
+}
+
+model Cancellations {
+  id           Int      @id @default(autoincrement())
+  booking_id   Int
+  booking      Bookings @relation(fields: [booking_id], references: [id])
+  reason       String?
+  status       CancellationStatus
+  refund_amount Decimal?  @db.Decimal(10, 2)
+  processed_at DateTime?
+  created_at   DateTime @default(now())
+  updated_at   DateTime @updatedAt
+  deleted_at   DateTime?
+}
+
+model Activity_Logs {
+  id           Int      @id @default(autoincrement())
+  user_id      Int?
+  user         Users?   @relation(fields: [user_id], references: [id])
+  action       String   @db.VarChar(100)
+  entity_type  String?  @db.VarChar(50)
+  entity_id    Int?
+  details      Json?
+  created_at   DateTime @default(now())
+}
+
+model Telegram_Channels {
+  id           Int      @id @default(autoincrement())
+  theater_id   Int
+  theater      Theaters @relation(fields: [theater_id], references: [id])
+  name         String
+  created_at   DateTime @default(now())
+  updated_at   DateTime @updatedAt
+  deleted_at   DateTime?
 }
