@@ -3,7 +3,7 @@ export const createAccount = async (req,res)=>{
     try {
         const {email,password,name} = req.body
         const response  = await createUserAccount(email,password,name);
-        c
+        console.log(response.message)
         res.status(response.status).json({
             data: {
                 message: response.message,
