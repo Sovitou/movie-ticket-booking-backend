@@ -21,7 +21,7 @@ export const createAccountService = async (email, password, name) => {
       name: name,
       email: email,
       password_hash: hashPassword,
-      role: "user"
+      role: "user",
     },
   });
   const options = { expiresIn: "1h" };
@@ -36,24 +36,24 @@ export const createAccountService = async (email, password, name) => {
 
 export const loginAccountService = async (email, password) => {
   const isExist = await prisma.users.findFirst({
-    where:{
-      email: email
-    }
-  })
-  const isPasswordMatch = await bcrypt.compare(password,isExist.password_hash)
+    where: {
+      email: email,
+    },
+  });
+  const isPasswordMatch = await bcrypt.compare(password, isExist.password_hash);
   const options = { expiresIn: "1h" };
   const payload = { userID: isExist.id, username: isExist.email };
   const token = jwt.sign(payload, process.env.SECRET_KEY, options);
-  if(isPasswordMatch){
+  if (isPasswordMatch) {
     return {
       message: "successfully login",
       token: token,
       status: 200,
-    }
-  }else{
+    };
+  } else {
     return {
-      message:"password or email is incorrect",
-      status:200,
-    }
+      message: "password or email is incorrect",
+      status: 200,
+    };
   }
 };
