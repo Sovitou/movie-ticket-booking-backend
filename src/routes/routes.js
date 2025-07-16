@@ -1,17 +1,13 @@
 import express from "express";
-import { root } from "../service/testing.js";
-import {
-  createAccount,
-  loginUserAccount,
-} from "../controller/userController.js";
-const route = express.Router();
+import { root } from "../services/testing.js";
+import authRoutes from "./auth.routes.js";
+import profileRoutes from "./profile.routes.js";
 
+const route = express.Router();
 
 route.get("/", root);
 
-//authentication
-route.post("/user/signup", createAccount);
-route.post("/user/signin", loginUserAccount);
-
+route.use("/auth", authRoutes); //authentication
+route.use("/profile", profileRoutes); //profile
 
 export default route;
