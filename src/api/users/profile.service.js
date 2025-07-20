@@ -1,5 +1,5 @@
-import prisma from "../../prisma/client.js";
-import { verifyPassword, hashPassword } from "../utils/auth.js";
+import prisma from "../../../prisma/client.js";
+import { verifyPassword, hashPassword } from "../../utils/auth.js";
 
 export async function updateProfile(userId, updateData) {
   const updated = await prisma.users.update({

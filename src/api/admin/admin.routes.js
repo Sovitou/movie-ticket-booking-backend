@@ -1,12 +1,12 @@
 import { Router } from "express";
-import { authenticateToken } from "../middlewares/auth.middleware.js";
-import { isAdmin } from "../middlewares/role.middleware.js";
+import { authenticateToken } from "../../middlewares/auth.middleware.js";
+import { isAdmin } from "../../middlewares/role.middleware.js";
 import {
   getUsers,
   getUserById,
   deleteUserById,
   updateUserById,
-} from "../controllers/admin.controller.js";
+} from "./admin.controller.js";
 
 const router = Router();
 router.use(authenticateToken);

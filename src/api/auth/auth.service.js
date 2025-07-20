@@ -1,5 +1,9 @@
-import prisma from "../../prisma/client.js";
-import { hashPassword, verifyPassword, generateToken } from "../utils/auth.js";
+import prisma from "../../../prisma/client.js";
+import {
+  hashPassword,
+  verifyPassword,
+  generateToken,
+} from "../../utils/auth.js";
 
 export async function register({ data }) {
   const { email, password, name, role } = data;

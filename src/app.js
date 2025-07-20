@@ -9,6 +9,8 @@ app.use(express.json());
 app.use(cors());
 app.use("/api", route);
 
+app.get("/", (req, res) => res.json({ status: "working" }));
+
 app.use(globalErrorHandler);
 
 app.listen(port, () => {
