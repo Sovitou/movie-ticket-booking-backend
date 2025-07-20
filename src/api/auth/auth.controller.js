@@ -2,8 +2,8 @@ import {
   SignupSchema,
   LoginSchema,
   ResetPasswordSchema,
-} from "../validations/user.validation.js";
-import * as authService from "../services/auth.service.js";
+} from "../../validations/user.validation.js";
+import * as authService from "./auth.service.js";
 
 export async function registerUser(req, res, next) {
   try {

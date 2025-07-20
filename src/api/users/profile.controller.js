@@ -1,8 +1,8 @@
 import {
   UpdateProfileSchema,
   ChangePasswordSchema,
-} from "../validations/user.validation.js";
-import * as profileService from "../services/profile.service.js";
+} from "../../validations/user.validation.js";
+import * as profileService from "./profile.service.js";
 
 export async function updateUserProfile(req, res, next) {
   try {
