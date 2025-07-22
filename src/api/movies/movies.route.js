@@ -19,7 +19,6 @@ router.get("/:id", getMovieById);
 
 router.use(authenticateToken);
 
-
 // Movie Routes for Admin
 router.use(isAdmin);
 router.post("/", createMovie);

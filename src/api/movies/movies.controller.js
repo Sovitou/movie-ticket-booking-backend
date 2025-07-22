@@ -16,7 +16,7 @@ export async function createMovie(req, res, next) {
 
 export async function updateMovie(req, res, next) {
   try {
-    const { id } = req.params;
+    const id = parseInt(req.params.id);
     const data = MovieUpdateSchema.parse(req.body);
     const result = await movieService.updateMovie(id, data);
     res.json(result);
@@ -27,7 +27,7 @@ export async function updateMovie(req, res, next) {
 
 export async function deleteMovie(req, res, next) {
   try {
-    const { id } = req.params;
+    const id = parseInt(req.params.id);
     const result = await movieService.deleteMovie(id);
     res.json(result);
   } catch (err) {
@@ -46,7 +46,7 @@ export async function getMovies(req, res, next) {
 
 export async function getMovieById(req, res, next) {
   try {
-    const { id } = req.params;
+    const id = parseInt(req.params.id);
     const result = await movieService.getMovieById(id);
     res.json(result);
   } catch (err) {
